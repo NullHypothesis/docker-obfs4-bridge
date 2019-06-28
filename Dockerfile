@@ -10,9 +10,9 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends
 
 COPY torrc /etc/tor/torrc
-COPY start-tor.sh /tmp
+COPY start-tor.sh /usr/local/bin
 
-RUN chmod 0755 /tmp/start-tor.sh
+RUN chmod 0755 /usr/local/bin/start-tor.sh
 RUN chmod 0644 /etc/tor/torrc
 
-CMD [ "/tmp/start-tor.sh" ]
+CMD [ "/usr/local/bin/start-tor.sh" ]
