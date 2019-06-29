@@ -26,12 +26,12 @@ function get_port {
     echo "$port"
 }
 
-# Determine random port.
+# Determine random ports.
 OR_PORT=$(get_port)
 PT_PORT=$(get_port)
 
 # Keep getting a new PT port until it's different from our OR port.  This loop
-# will only run if we happened to chose the same port for both variables, which
+# will only run if we happened to choose the same port for both variables, which
 # is unlikely.
 while [ "$PT_PORT" -eq "$OR_PORT" ]
 do
