@@ -9,10 +9,14 @@ RUN apt-get update && apt-get install -y \
     obfs4proxy \
     --no-install-recommends
 
-COPY torrc /etc/tor/torrc
-COPY start-tor.sh /usr/local/bin
+# Our torrc is generated at run-time by the script start-tor.sh.
+RUN rm /etc/tor/torrc
+RUN chown debian-tor:debian-tor /etc/tor
+RUN chown debian-tor:debian-tor /var/log/tor
 
+COPY start-tor.sh /usr/local/bin
 RUN chmod 0755 /usr/local/bin/start-tor.sh
-RUN chmod 0644 /etc/tor/torrc
+
+USER debian-tor
 
 CMD [ "/usr/local/bin/start-tor.sh" ]
