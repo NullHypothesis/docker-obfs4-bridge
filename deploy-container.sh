@@ -3,6 +3,10 @@
 # This script launches an obfs4proxy docker container.  Don't start the docker
 # container directly with docker.  We need this wrapper script because it
 # automatically determines a random OR port and obfs4 port.
+#
+# Note that we link to this script from:
+# <https://trac.torproject.org/projects/tor/wiki/doc/PluggableTransports/obfs4proxy>
+# If we change the path to this script, we must update the above instructions.
 
 # Get the bridge operator's email address.
 if [ $# -ne 1 ]
