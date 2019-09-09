@@ -1,5 +1,5 @@
 # Base docker image
-FROM debian:jessie
+FROM debian:buster
 
 LABEL maintainer="Philipp Winter <phw@torproject.org>"
 
