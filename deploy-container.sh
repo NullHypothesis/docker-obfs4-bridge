@@ -47,4 +47,4 @@ done
 docker run -d \
     -e "OR_PORT=$OR_PORT" -e "PT_PORT=$PT_PORT" -e "EMAIL=$EMAIL" \
     -p "$OR_PORT":"$OR_PORT" -p "$PT_PORT":"$PT_PORT" \
-    phwinter/obfs4-bridge:0.2
+    phwinter/obfs4-bridge:latest
