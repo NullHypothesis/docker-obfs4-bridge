@@ -3,7 +3,21 @@ FROM debian:buster
 
 LABEL maintainer="Philipp Winter <phw@torproject.org>"
 
-# Install dependencies
+# Install dependencies to add Tor's repository.
+RUN apt-get update && apt-get install -y \
+    curl \
+    gpg \
+    gpg-agent \
+    ca-certificates \
+    --no-install-recommends
+
+# See: <https://2019.www.torproject.org/docs/debian.html.en>
+RUN curl https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --import
+RUN gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
+
+RUN printf "deb https://deb.torproject.org/torproject.org buster main\n" >> /etc/apt/sources.list.d/tor
+
+# Install remaining dependencies.
 RUN apt-get update && apt-get install -y \
     tor \
     tor-geoipdb \
