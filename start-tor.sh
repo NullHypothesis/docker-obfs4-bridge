@@ -13,6 +13,7 @@ Nickname DockerObfs4Bridge
 Log notice file /var/log/tor/log
 ServerTransportPlugin obfs4 exec /usr/bin/obfs4proxy
 ExtORPort auto
+DataDirectory /var/lib/tor
 
 # The variable "OR_PORT" is replaced with a randomly-generated OR port by the
 # script deploy-container.sh.

@@ -18,6 +18,9 @@ RUN chown debian-tor:debian-tor /var/log/tor
 COPY start-tor.sh /usr/local/bin
 RUN chmod 0755 /usr/local/bin/start-tor.sh
 
+COPY get-bridge-line /usr/local/bin
+RUN chmod 0755 /usr/local/bin/get-bridge-line
+
 USER debian-tor
 
 CMD [ "/usr/local/bin/start-tor.sh" ]
