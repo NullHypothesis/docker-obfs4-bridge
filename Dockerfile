@@ -24,6 +24,9 @@ RUN apt-get update && apt-get install -y \
     obfs4proxy \
     --no-install-recommends
 
+# Allow obfs4proxy to bind to ports < 1024.
+RUN setcap cap_net_bind_service=+ep /usr/bin/obfs4proxy
+
 # Our torrc is generated at run-time by the script start-tor.sh.
 RUN rm /etc/tor/torrc
 RUN chown debian-tor:debian-tor /etc/tor
