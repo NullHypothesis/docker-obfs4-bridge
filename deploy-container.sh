@@ -42,6 +42,9 @@ do
     PT_PORT=$(get_port)
 done
 
+echo "Using port $OR_PORT as OR port and $PT_PORT as PT port."
+echo -e "Make sure that *both* ports are forwarded in your firewall.\n"
+
 # Pass our two ports and email address to the container using environment
 # variables.
 docker run -d \
