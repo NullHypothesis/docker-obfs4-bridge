@@ -11,6 +11,7 @@ BridgeRelay 1
 # Docker container.
 Nickname DockerObfs4Bridge
 Log notice file /var/log/tor/log
+Log notice stdout
 ServerTransportPlugin obfs4 exec /usr/bin/obfs4proxy
 ExtORPort auto
 DataDirectory /var/lib/tor
