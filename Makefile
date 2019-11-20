@@ -2,13 +2,13 @@ IMAGE=phwinter/obfs4-bridge
 
 .PHONY: tag
 tag:
-	test -n "$(VERSION)" # $$VERSION
+	@[ "${VERSION}" ] || ( echo "Env var VERSION is not set."; exit 1 )
 	docker tag $(IMAGE) $(IMAGE):$(VERSION)
 	docker tag $(IMAGE) $(IMAGE):latest
 
 .PHONY: release
 release:
-	test -n "$(VERSION)" # $$VERSION
+	@[ "${VERSION}" ] || ( echo "Env var VERSION is not set."; exit 1 )
 	docker push $(IMAGE):$(VERSION)
 	docker push $(IMAGE):latest
 
@@ -18,10 +18,9 @@ build:
 
 .PHONY: deploy
 deploy:
-	test -n "$(OR_PORT)" # $$OR_PORT
-	test -n "$(PT_PORT)" # $$PT_PORT
-	test -n "$(EMAIL)" # $$EMAIL
-
+	@[ "${OR_PORT}" ] || ( echo "Env var OR_PORT is not set."; exit 1 )
+	@[ "${PT_PORT}" ] || ( echo "Env var PT_PORT is not set."; exit 1 )
+	@[ "${EMAIL}" ] || ( echo "Env var EMAIL is not set."; exit 1 )
 	@docker run \
 		--detach \
 		--env "OR_PORT=$(OR_PORT)" \
