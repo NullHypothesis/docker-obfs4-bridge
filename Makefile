@@ -29,6 +29,6 @@ deploy:
 		--publish "$(OR_PORT)":"$(OR_PORT)" \
 		--publish "$(PT_PORT)":"$(PT_PORT)" \
 		--restart unless-stopped \
-		--volume tor-vol:/var/lib/tor \
+		--volume tor-datadir-$(OR_PORT)-$(PT_PORT):/var/lib/tor \
 		$(IMAGE):latest
 	@echo "Make sure that port $(OR_PORT) and $(PT_PORT) are forwarded in your firewall."
