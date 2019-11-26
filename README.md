@@ -4,8 +4,6 @@ This repository contains the docker files for an obfs4 Tor bridge.
 
 ## Deploying an image
 
-    make deploy OR_PORT=111 PT_PORT=222 EMAIL=foo@bar.com
-
 Take a look at our
 [official setup instructions](https://community.torproject.org/relay/setup/bridge/docker/)
 for more details.
