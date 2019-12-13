@@ -21,3 +21,8 @@ Next, release a new version by adding a tag:
 Finally, release the image:
 
     make release VERSION=X.Y
+
+Once we released a new image version, we tag the respective git commit:
+
+    git tag -a -s "vVERSION" -m "Docker image version VERSION."
+    git push --tags origin master
