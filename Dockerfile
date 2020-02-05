@@ -1,5 +1,5 @@
 # Base docker image
-FROM debian:stable
+FROM debian:stable-slim
 
 LABEL maintainer="Philipp Winter <phw@torproject.org>"
 
@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     gpg \
     gpg-agent \
     ca-certificates \
+    libcap2-bin \
     --no-install-recommends
 
 # See: <https://2019.www.torproject.org/docs/debian.html.en>
