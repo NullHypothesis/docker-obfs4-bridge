@@ -12,6 +12,13 @@ RUN apt-get update && apt-get install -y \
     libcap2-bin \
     --no-install-recommends
 
+# The script update-ca-certificates is automatically run after installing the
+# ca-certificates package.  However, for some mysterious reason, it fails on
+# linux/arm (but not on linux/arm64 and linux/amd64) and results in "128 added,
+# 0 removed".  When calling it explicitly with the --fresh switch, it does
+# succeed.
+RUN update-ca-certificates --fresh
+
 # See: <https://2019.www.torproject.org/docs/debian.html.en>
 RUN curl https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --import
 RUN gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -

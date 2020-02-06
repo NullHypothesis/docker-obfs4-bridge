@@ -14,7 +14,9 @@ release:
 
 .PHONY: build
 build:
-	docker build -t $(IMAGE) .
+	# Docker's "buildx" module is currently experimental.  Here's how one can
+	# set it up: <https://bugs.torproject.org/33088>.
+	docker buildx build --platform=linux/arm,linux/arm64,linux/amd64 -t $(IMAGE) .
 
 .PHONY: deploy
 deploy:
