@@ -1,20 +1,42 @@
 IMAGE=phwinter/obfs4-bridge
+VERSION=0.4.2.6
 
-.PHONY: tag
-tag:
+.PHONY: tag_latest
+tag_latest:
 	@[ "${VERSION}" ] || ( echo "Env var VERSION is not set."; exit 1 )
-	docker tag $(IMAGE) $(IMAGE):$(VERSION)
-	docker tag $(IMAGE) $(IMAGE):latest
+
+	docker tag $(IMAGE):x86_64-$(VERSION) $(IMAGE):x86_64-latest
+	docker tag $(IMAGE):arm64-$(VERSION) $(IMAGE):arm64-latest
+	docker tag $(IMAGE):arm-$(VERSION) $(IMAGE):arm-latest
 
 .PHONY: release
-release:
+release: tag_latest
 	@[ "${VERSION}" ] || ( echo "Env var VERSION is not set."; exit 1 )
-	docker push $(IMAGE):$(VERSION)
-	docker push $(IMAGE):latest
+
+	docker push $(IMAGE):x86_64-$(VERSION)
+	docker push $(IMAGE):arm64-$(VERSION)
+	docker push $(IMAGE):arm-$(VERSION)
+
+	docker push $(IMAGE):x86_64-latest
+	docker push $(IMAGE):arm64-latest
+	docker push $(IMAGE):arm-latest
+
+	docker manifest create $(IMAGE):latest \
+		$(IMAGE):x86_64-latest \
+		$(IMAGE):arm64-latest \
+		$(IMAGE):arm-latest
+
+	docker manifest push --purge $(IMAGE):latest
 
 .PHONY: build
 build:
-	docker build -t $(IMAGE) .
+	@[ "${VERSION}" ] || ( echo "Env var VERSION is not set."; exit 1 )
+
+	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+	docker build -f Dockerfile -t $(IMAGE):x86_64-$(VERSION) .
+	docker build -f Dockerfile.arm64 -t $(IMAGE):arm64-$(VERSION) .
+	docker build -f Dockerfile.arm -t $(IMAGE):arm-$(VERSION) .
 
 .PHONY: deploy
 deploy:
