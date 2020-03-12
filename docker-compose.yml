@@ -1,0 +1,31 @@
+# This file is just ment to be used to speed up the deploy phase.
+#
+# In order to avoid that the user has to stop the container, remove it and start
+# it again with docker-compose is just needed the following command:
+#   docker-compose up -d obfs4-bridge
+#
+# Pulling the image can be done as follow:
+#   docker-compose pull obfs4-bridge
+
+version: "3.7"
+services:
+  obfs4-bridge:
+    # Uses latest image version if VERSION is unset or empty.
+    image: ${IMAGE}:${VERSION:-latest}
+    environment:
+      # Exits with an error message if OR_PORT is unset or empty.
+      - OR_PORT=${OR_PORT:?Env var OR_PORT is not set.}
+      # Exits with an error message if PT_PORT is unset or empty.
+      - PT_PORT=${PT_PORT:?Env var PT_PORT is not set.}
+      # Exits with an error message if EMAIL is unset or empty.
+      - EMAIL=${EMAIL:?Env var EMAIL is not set.}
+    volumes:
+      - data:/var/lib/tor
+    ports:
+      - ${OR_PORT}:${OR_PORT}
+      - ${PT_PORT}:${PT_PORT}
+    restart: unless-stopped
+
+volumes:
+  data:
+    name: tor-datadir-${OR_PORT}-${PT_PORT}
