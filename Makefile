@@ -18,17 +18,5 @@ build:
 
 .PHONY: deploy
 deploy:
-	@[ "${OR_PORT}" ] || ( echo "Env var OR_PORT is not set."; exit 1 )
-	@[ "${PT_PORT}" ] || ( echo "Env var PT_PORT is not set."; exit 1 )
-	@[ "${EMAIL}" ] || ( echo "Env var EMAIL is not set."; exit 1 )
-	@docker run \
-		--detach \
-		--env "OR_PORT=$(OR_PORT)" \
-		--env "PT_PORT=$(PT_PORT)" \
-		--env "EMAIL=$(EMAIL)" \
-		--publish "$(OR_PORT)":"$(OR_PORT)" \
-		--publish "$(PT_PORT)":"$(PT_PORT)" \
-		--restart unless-stopped \
-		--volume tor-datadir-$(OR_PORT)-$(PT_PORT):/var/lib/tor \
-		$(IMAGE):latest
+	docker-compose up -d obfs4-bridge
 	@echo "Make sure that port $(OR_PORT) and $(PT_PORT) are forwarded in your firewall."
