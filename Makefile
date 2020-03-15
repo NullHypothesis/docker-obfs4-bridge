@@ -16,7 +16,9 @@ release:
 build:
 	# Docker's "buildx" module is currently experimental.  Here's how one can
 	# set it up: <https://bugs.torproject.org/33088>.
-	docker buildx build --platform=linux/arm,linux/arm64,linux/amd64 -t $(IMAGE) .
+	# You can see what platforms your builder instance supports by running:
+	#   docker buildx inspect --bootstrap
+	docker buildx build --platform=linux/amd64,linux/arm64 -t $(IMAGE):$(VERSION) .
 
 .PHONY: deploy
 deploy:
