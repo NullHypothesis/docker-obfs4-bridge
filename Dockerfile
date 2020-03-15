@@ -14,9 +14,9 @@ RUN apt-get update && apt-get install -y \
 
 # The script update-ca-certificates is automatically run after installing the
 # ca-certificates package.  However, for some mysterious reason, it fails on
-# linux/arm (but not on linux/arm64 and linux/amd64) and results in "128 added,
+# linux/arm (but not on linux/arm64 and linux/amd64) and results in "0 added,
 # 0 removed".  When calling it explicitly with the --fresh switch, it does
-# succeed.
+# succeed in adding certificates.
 RUN update-ca-certificates --fresh
 
 # See: <https://2019.www.torproject.org/docs/debian.html.en>
