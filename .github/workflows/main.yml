@@ -1,0 +1,91 @@
+name: 'Test and deploy obfs4-bridge docker image.'
+
+on:
+  repository_dispatch:
+    types: new-release
+
+# This variables are required in order to start the container and have the
+# bootstrap phase succeed.
+env:
+  IMAGE: thymbahutymba/obfs4-bridge
+  OR_PORT: 1050
+  PT_PORT: 1051
+  EMAIL: testing_bridge@email.org
+  DOCKER_CLI_EXPERIMENTAL: enabled
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      #- name: Enable experimental features
+      #  run: | 
+      #    echo '{ "experimental": true }' | sudo tee -a /etc/docker/daemon.json
+
+      - name: Docker login
+        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Source and set environmental variables.
+        run: |
+          echo "::set-env name=amd64_version::${{ github.event.client_payload.amd64 }}"
+          echo "::set-env name=arm64_version::${{ github.event.client_payload.arm64 }}"
+          echo "::set-env name=arm_version::${{ github.event.client_payload.arm }}"
+
+      # The two following steps are mutually exclusive, only one of them is executed.
+      - name: Tor version for amd64 is unchanged
+        if: github.event.client_payload.amd64 == '-1'
+        run: | 
+          docker pull ${IMAGE}:amd64-latest
+
+      - name: New tor version for amd64. Build, test and deploy new image
+        if: github.event.client_payload.amd64 != '-1'
+        run: |
+          make build ARCH=amd64
+          docker run -d --env "OR_PORT=${OR_PORT}" --env "PT_PORT=${PT_PORT}" --env "EMAIL=${EMAIL}" --name test_amd64 ${IMAGE}:amd64-${amd64_version}
+          docker cp test.sh test_amd64:/test.sh
+          docker exec test_amd64 bash /test.sh
+
+          # Since we reach this point the new amd64 image passed the test and 
+          # can be released.
+          make release-version ARCH=amd64
+
+      # The two following steps are mutually exclusive, only one of them is executed. 
+      - name: Tor version for arm64 is unchanged
+        if: github.event.client_payload.arm64 == '-1'
+        run: | 
+          docker pull ${IMAGE}:arm64-latest
+
+      - name: New tor version for arm64. Build, test and deploy new image
+        if: github.event.client_payload.arm64 != '-1'
+        run: |
+          make build ARCH=arm64
+          docker run -d --env "OR_PORT=${OR_PORT}" --env "PT_PORT=${PT_PORT}" --env "EMAIL=${EMAIL}" --name test_arm64 ${IMAGE}:arm64-${arm64_version}
+          docker cp test.sh test_arm64:/test.sh
+          docker exec test_arm64 bash /test.sh
+
+          # Since we reach this point the new amd64 image passed the test and 
+          # can be released.
+          make release-version ARCH=arm64
+
+      # The two following steps are mutually exclusive, only one of them is executed. 
+      - name: Tor version for arm is unchanged
+        if: github.event.client_payload.arm == '-1'
+        run: | 
+          docker pull ${IMAGE}:arm-latest
+
+      - name: New tor version for arm. Build, test and deploy new image
+        if: github.event.client_payload.arm != '-1'
+        run: |
+          make build ARCH=arm
+          docker run -d --env "OR_PORT=${OR_PORT}" --env "PT_PORT=${PT_PORT}" --env "EMAIL=${EMAIL}" --name test_arm ${IMAGE}:arm-${arm64_version}
+          docker cp test.sh test_arm:/test.sh
+          docker exec test_arm bash /test.sh
+
+          # Since we reach this point the new amd64 image passed the test and 
+          # can be released.
+          make release-version ARCH=arm
+
+      - name: Release the new manifest for latest images
+        run: make release-manifest

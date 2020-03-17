@@ -1,0 +1,7 @@
+[Unit]
+Description=Execute the script that allows to check and trigger the CI/CD pipeline when the new tor version is available.
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/release-new-image
