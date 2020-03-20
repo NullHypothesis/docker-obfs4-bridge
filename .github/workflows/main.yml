@@ -1,18 +1,8 @@
 name: 'Test and deploy obfs4-bridge docker image.'
 
-# Enable the test for each branch in the repository.
-on: [push]
-
-#on:
-#  # With pushing of new environment file containing tor version will trigger the
-#  # test and deploy
-#  push:
-#    branches:
-#      - master
-# Not sure about it!
-#  pull_request:
-#    branches:
-#      - master
+on:
+  repository_dispatch:
+    types: new-release
 
 # This variables are required in order to start the container and have the
 # bootstrap phase succeed.
@@ -30,7 +20,6 @@ jobs:
       - name: Source environmental variables from file
         run: |
           cat .env | grep IMAGE= | head -n 1 | sed "s/IMAGE=//" > IMAGE
-          cat .env | grep VERSION= | head -n 1 | sed "s/VERSION=//" > VERSION
 
       # If the multiarch patch will be merged, this can be extended for test
       # every images; otherwise can be set up one job for each architecture.
@@ -60,9 +49,8 @@ jobs:
       - name: Source and set environmental variables.
         run: |
           cat .env | grep IMAGE= | head -n 1 | sed "s/IMAGE=//" > IMAGE
-          cat .env | grep VERSION= | head -n 1 | sed "s/VERSION=//" > VERSION
           echo "::set-env name=IMAGE::$(cat IMAGE)"
-          echo "::set-env name=VERSION::$(cat VERSION)"
+          echo "::set-env name=VERSION::${{ github.event.client_payload.version }}"
       
       - name: Docker login
         run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}

@@ -8,7 +8,7 @@ RESET='\033[0m'
 MAX_TRIES=3
 
 # Bootstrap requires time then the sleeping time between attemps should be long.
-SLEEP_TIME=5s
+SLEEP_TIME=10s
 
 TOR_LOG=/var/log/tor/log
 
