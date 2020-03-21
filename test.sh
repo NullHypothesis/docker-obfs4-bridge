@@ -24,7 +24,7 @@ check_for ()
 
 				if [[ $i == ${MAX_TRIES} ]]; then
 						echo -e "\r[${RED} failed ${RESET}] ${1}"
-						echo -e "\nTest failed."
+						echo -e "\nTest of the bootstrap phase failed."
 						exit 1
 				fi
 
@@ -35,5 +35,14 @@ check_for ()
 check_for "Bootstrapped 0%"
 check_for "Bootstrapped 100%"
 
-echo -e "\nTest passed."
+# Test get-bridge-line script
+get-bridge-line | grep -qE "obfs4 ([0-9]{1,3}(\.|:)){4}[0-9]{1,5} [a-zA-Z0-9]{40} cert=[a-zA-Z0-9,\/]{70} iat-mode=0"
+
+if [ ! $? ];
+then
+	echo "Test of the get-bridge-line script failed."
+	exit 1
+fi
+
+echo -e "\nTests passed."
 exit 0
