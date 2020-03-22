@@ -36,9 +36,14 @@ build:
 
 	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-	docker build -f Dockerfile -t $(IMAGE):amd64-$(VERSION) .
-	docker build -f Dockerfile.arm64 -t $(IMAGE):arm64-$(VERSION) .
-	docker build -f Dockerfile.arm -t $(IMAGE):arm-$(VERSION) .
+	cat Dockerfile.amd64 Dockerfile.common > Dockerfile
+	docker build -t $(IMAGE):amd64-$(VERSION) .
+
+	cat Dockerfile.arm64 Dockerfile.common > Dockerfile
+	docker build -t $(IMAGE):arm64-$(VERSION) .
+
+	cat Dockerfile.arm Dockerfile.common > Dockerfile
+	docker build -t $(IMAGE):arm-$(VERSION) .
 
 .PHONY: deploy
 deploy:
