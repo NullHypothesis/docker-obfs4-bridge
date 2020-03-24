@@ -1,23 +1,34 @@
-# This file is just ment to be used to speed up the deploy phase.
+# This file assists operators in (re-)deploying an obfs4 bridge Docker
+# container.  You need the tool 'docker-compose' to use this file.  You
+# can find it in the Debian package 'docker-compose'.
 #
-# In order to avoid that the user has to stop the container, remove it and start
-# it again with docker-compose is just needed the following command:
-#   docker-compose up -d obfs4-bridge
+# First, you need to create a configuration file, ".env", in the same directory
+# as this file, "docker-compose.yml".  Add the following environment variables
+# to this configuration file.  EMAIL is your email address; OR_PORT is your
+# onion routing port; and PT_PORT is your obfs4 port:
 #
-# Pulling the image can be done as follow:
+#   EMAIL=you@example.com
+#   OR_PORT=XXX
+#   PT_PORT=XXX
+#
+# Next, pull the Docker image, by running:
+#
 #   docker-compose pull obfs4-bridge
+#
+# And finally, to (re-)deploy the container, run:
+#
+#   docker-compose up -d obfs4-bridge
 
-version: "3.7"
+version: "3.4"
 services:
   obfs4-bridge:
-    # Uses latest image version if VERSION is unset or empty.
-    image: ${IMAGE}:${VERSION:-latest}
+    image: phwinter/obfs4-bridge:latest
     environment:
-      # Exits with an error message if OR_PORT is unset or empty.
+      # Exit with an error message if OR_PORT is unset or empty.
       - OR_PORT=${OR_PORT:?Env var OR_PORT is not set.}
-      # Exits with an error message if PT_PORT is unset or empty.
+      # Exit with an error message if PT_PORT is unset or empty.
       - PT_PORT=${PT_PORT:?Env var PT_PORT is not set.}
-      # Exits with an error message if EMAIL is unset or empty.
+      # Exit with an error message if EMAIL is unset or empty.
       - EMAIL=${EMAIL:?Env var EMAIL is not set.}
     volumes:
       - data:/var/lib/tor
