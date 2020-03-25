@@ -1,0 +1,2 @@
+# Base docker image
+FROM debian:stable-slim
