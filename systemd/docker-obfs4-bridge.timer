@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer for checking and triggering the CI/CD pipeline when the new tor version is available.
+
+[Timer]
+OnCalendar=*-*-* 12:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target
