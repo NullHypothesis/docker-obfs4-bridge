@@ -1,6 +1,8 @@
 # Base docker image
 FROM debian:stable-slim
 
+ARG with_nyx
+
 LABEL maintainer="Philipp Winter <phw@torproject.org>"
 
 # Install dependencies to add Tor's repository.
@@ -19,11 +21,15 @@ RUN gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
 RUN printf "deb https://deb.torproject.org/torproject.org stable main\n" >> /etc/apt/sources.list.d/tor
 
 # Install remaining dependencies.
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     tor \
     tor-geoipdb \
-    obfs4proxy \
-    --no-install-recommends
+    obfs4proxy
+
+# Install nyx if requested
+RUN if [ -n "$with_nyx" ]; then \
+        apt-get install -y --no-install-recommends nyx; \
+    fi
 
 # Allow obfs4proxy to bind to ports < 1024.
 RUN setcap cap_net_bind_service=+ep /usr/bin/obfs4proxy
