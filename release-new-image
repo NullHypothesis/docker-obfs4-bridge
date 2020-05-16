@@ -13,8 +13,14 @@ fi
 JSON=$(wget -qO- https://registry.hub.docker.com/v2/repositories/${OWNER}/${IMAGE}/tags)
 ARCHS=("amd64" "arm64" "arm")
 
-# Version greater or equal 
-version_ge() {
+# Version greater
+version_gt() {
+    # Whether the image is already at the latest version no update is required
+    if [ "$1" = "$2" ];
+    then
+        return 1
+    fi
+
     [  "$1" = "$(echo -e "$1\n$2" | sort -V | tail -n1)" ]
 }
 
@@ -33,7 +39,7 @@ new_version_for () {
     # Get the digest of all images in latest manifest
     DIGEST=$(jq -r '.results[] | select(.name=="latest") | .images[] | select(.architecture=="'$1'") | .digest' <<< ${JSON})
     NAME=$(jq -r '.results[] | select(.images[].digest=="'"${DIGEST}"'" and select(.name | test("(-[0-9])"))) | .name' <<< ${JSON})
-    DOCKER_VERSION=$(sed 's/.*-//' <<< ${NAME})
+    DOCKER_VERSION=$(sed 's/'$1'-//' <<< ${NAME})
 
     case $1 in
         "arm") ARCH='armhf' ;;
@@ -46,7 +52,7 @@ new_version_for () {
         grep "^Version:" | \
         sed "s/Version: //" | sed "s/~.*//")
 
-	if version_ge ${LATEST_VERSION} ${DOCKER_VERSION};
+	if version_gt ${LATEST_VERSION} ${DOCKER_VERSION};
 	then
     	# Return latest version to caller
     	eval "$2='${LATEST_VERSION}'"

@@ -19,10 +19,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
-      #- name: Enable experimental features
-      #  run: | 
-      #    echo '{ "experimental": true }' | sudo tee -a /etc/docker/daemon.json
 
       - name: Docker login
         run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_PASSWORD }}
@@ -34,10 +30,10 @@ jobs:
           echo "::set-env name=arm_version::${{ github.event.client_payload.arm }}"
 
       # The two following steps are mutually exclusive, only one of them is executed.
-      - name: Tor version for amd64 is unchanged
-        if: github.event.client_payload.amd64 == '-1'
-        run: | 
-          docker pull ${IMAGE}:amd64-latest
+      #- name: Tor version for amd64 is unchanged
+      #  if: github.event.client_payload.amd64 == '-1'
+      #  run: | 
+      #    docker pull ${IMAGE}:amd64-latest
 
       - name: New tor version for amd64. Build, test and deploy new image
         if: github.event.client_payload.amd64 != '-1'
@@ -52,10 +48,10 @@ jobs:
           make release-version ARCH=amd64
 
       # The two following steps are mutually exclusive, only one of them is executed. 
-      - name: Tor version for arm64 is unchanged
-        if: github.event.client_payload.arm64 == '-1'
-        run: | 
-          docker pull ${IMAGE}:arm64-latest
+      #- name: Tor version for arm64 is unchanged
+      #  if: github.event.client_payload.arm64 == '-1'
+      #  run: | 
+      #    docker pull ${IMAGE}:arm64-latest
 
       - name: New tor version for arm64. Build, test and deploy new image
         if: github.event.client_payload.arm64 != '-1'
@@ -70,10 +66,10 @@ jobs:
           make release-version ARCH=arm64
 
       # The two following steps are mutually exclusive, only one of them is executed. 
-      - name: Tor version for arm is unchanged
-        if: github.event.client_payload.arm == '-1'
-        run: | 
-          docker pull ${IMAGE}:arm-latest
+      #- name: Tor version for arm is unchanged
+      #  if: github.event.client_payload.arm == '-1'
+      #  run: | 
+      #    docker pull ${IMAGE}:arm-latest
 
       - name: New tor version for arm. Build, test and deploy new image
         if: github.event.client_payload.arm != '-1'
