@@ -15,47 +15,62 @@ ARCHS=("amd64" "arm64" "arm")
 
 # Version greater
 version_gt() {
-    # Whether the image is already at the latest version no update is required
-    if [ "$1" = "$2" ];
-    then
-        return 1
-    fi
+	# Whether the image is already at the latest version no update is required
+	if [ "$1" = "$2" ];
+	then
+		return 1
+	fi
 
-    [  "$1" = "$(echo -e "$1\n$2" | sort -V | tail -n1)" ]
+	[  "$1" = "$(echo -e "$1\n$2" | sort -V | tail -n1)" ]
 }
 
 # Check if there is new version available for given architecture
 new_version_for () {
-    if [ $# -ne 2 ];
-    then
-        echo "check_new_version_for requires the arch and the variable to return the latest version."
-        exit 1
-    elif [[ ! ${ARCHS[@]} =~ $1 ]];
-    then
-        echo "Architecture "$1" not supported. [" ${ARCHS[@]} "]"
-        exit 1
-    fi
+	if [ $# -ne 2 ];
+	then
+		echo "check_new_version_for requires the arch and the variable to return the latest version."
+		exit 1
+	elif [[ ! ${ARCHS[@]} =~ $1 ]];
+	then
+		echo "Architecture "$1" not supported. [" ${ARCHS[@]} "]"
+		exit 1
+	fi
 
-    # Get the digest of all images in latest manifest
-    DIGEST=$(jq -r '.results[] | select(.name=="latest") | .images[] | select(.architecture=="'$1'") | .digest' <<< ${JSON})
-    NAME=$(jq -r '.results[] | select(.images[].digest=="'"${DIGEST}"'" and select(.name | test("(-[0-9])"))) | .name' <<< ${JSON})
-    DOCKER_VERSION=$(sed 's/'$1'-//' <<< ${NAME})
+	# Get the digest of all images in latest manifest
+	DIGEST=$(jq -r '.results[] | select(.name=="latest") | .images[] | select(.architecture=="'$1'") | .digest' <<< ${JSON})
+	NAME=$(jq -r '.results[] | select(.images[].digest=="'"${DIGEST}"'" and select(.name | test("(-[0-9])"))) | .name' <<< ${JSON})
+	DOCKER_VERSION=$(sed 's/'$1'-//' <<< ${NAME})
 
-    case $1 in
-        "arm") ARCH='armhf' ;;
-        *) ARCH=$1 ;;
-    esac
+	: "
+	Since tor 0.4.3.x, the binary Debian packages on deb.torproject.org  will 
+	not anymore provided. Therefore, the debian repository has been chosen, in 
+	order to continue to have docker images for arm architecture.
 
-    LATEST_VERSION=$( \
-        wget -qO- https://deb.torproject.org/torproject.org/dists/stable/main/binary-${ARCH}/Packages | \
-        grep -A1 "^Package: tor$" | \
-        grep "^Version:" | \
-        sed "s/Version: //" | sed "s/~.*//")
+	Moreover, in order to detect whether newer tor version is available, apt is 
+	used. Finally, in order to keep the script independent from the platform in
+	which is executed, docker is used to detect for newer version. 
+	"
+	if [ "$1" = "arm" ];
+	then
+		docker run --rm --privileged multiarch/qemu-user-static --reset -p yes 1> /dev/null
+		LATEST_VERSION=$(docker run --rm -it arm32v7/debian:bullseye-slim bash -c \
+			"apt-get update 1> /dev/null && \
+			apt-cache show tor" | \
+			grep '^Version:' | \
+			sed 's/Version: //' | \
+			tr -d '\r')
+	else
+		LATEST_VERSION=$( \
+			wget -qO- https://deb.torproject.org/torproject.org/dists/stable/main/binary-$1/Packages | \
+			grep -A1 "^Package: tor$" | \
+			grep "^Version:" | \
+			sed "s/Version: //" | sed "s/~.*//")
+	fi
 
 	if version_gt ${LATEST_VERSION} ${DOCKER_VERSION};
 	then
-    	# Return latest version to caller
-    	eval "$2='${LATEST_VERSION}'"
+		# Return latest version to caller
+		eval "$2='${LATEST_VERSION}'"
 	fi
 }
 
@@ -87,11 +102,9 @@ data=$(cat << EOF
 EOF
 )
 
-#echo ${data}
-
 curl \
 	-H "Accept: application/vnd.github.everest-preview+json" \
 	-H "Authorization: token ${GITHUB_TOKEN}" \
 	--request POST \
 	--data "${data}" \
-    https://api.github.com/repos/${OWNER}/docker-${IMAGE}/dispatches
+	https://api.github.com/repos/${OWNER}/docker-${IMAGE}/dispatches
