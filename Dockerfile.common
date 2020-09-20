@@ -13,11 +13,11 @@ RUN apt-get update && apt-get install -y \
 RUN wget -qO- https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc | gpg --import
 RUN gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
 
-RUN if [ "$(uname -m)" =~ "armv7" ]; \
+RUN bash -c 'if [[ ! "$(uname -m)" =~ "armv7" ]]; \
     then \
         printf "deb https://deb.torproject.org/torproject.org stable main\n" >> \
             /etc/apt/sources.list.d/tor.list; \
-    fi
+    fi'
 
 # Install remaining dependencies.
 RUN apt-get update && apt-get install -y \
