@@ -25,15 +25,9 @@ jobs:
 
       - name: Source and set environmental variables.
         run: |
-          echo "::set-env name=amd64_version::${{ github.event.client_payload.amd64 }}"
-          echo "::set-env name=arm64_version::${{ github.event.client_payload.arm64 }}"
-          echo "::set-env name=arm_version::${{ github.event.client_payload.arm }}"
-
-      # The two following steps are mutually exclusive, only one of them is executed.
-      #- name: Tor version for amd64 is unchanged
-      #  if: github.event.client_payload.amd64 == '-1'
-      #  run: | 
-      #    docker pull ${IMAGE}:amd64-latest
+          echo "amd64_version=${{ github.event.client_payload.amd64 }}" >> $GITHUB_ENV
+          echo "arm64_version=${{ github.event.client_payload.arm64 }}" >> $GITHUB_ENV
+          echo "arm_version=${{ github.event.client_payload.arm }}"     >> $GITHUB_ENV
 
       - name: New tor version for amd64. Build, test and deploy new image
         if: github.event.client_payload.amd64 != '-1'
@@ -47,12 +41,6 @@ jobs:
           # can be released.
           make release-version ARCH=amd64
 
-      # The two following steps are mutually exclusive, only one of them is executed. 
-      #- name: Tor version for arm64 is unchanged
-      #  if: github.event.client_payload.arm64 == '-1'
-      #  run: | 
-      #    docker pull ${IMAGE}:arm64-latest
-
       - name: New tor version for arm64. Build, test and deploy new image
         if: github.event.client_payload.arm64 != '-1'
         run: |
@@ -64,12 +52,6 @@ jobs:
           # Since we reach this point the new amd64 image passed the test and 
           # can be released.
           make release-version ARCH=arm64
-
-      # The two following steps are mutually exclusive, only one of them is executed. 
-      #- name: Tor version for arm is unchanged
-      #  if: github.event.client_payload.arm == '-1'
-      #  run: | 
-      #    docker pull ${IMAGE}:arm-latest
 
       - name: New tor version for arm. Build, test and deploy new image
         if: github.event.client_payload.arm != '-1'
